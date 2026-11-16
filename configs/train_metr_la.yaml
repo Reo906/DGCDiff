@@ -1,0 +1,112 @@
+experiment:
+  name: metr_la_dgcdiff
+  seed: 42
+
+task:
+  context_length: 12
+  horizon: 12
+
+runtime:
+  device: auto
+
+data:
+  train:
+    dataset:
+      target: data_processing.metr_la.METRLADataset
+      parameters:
+        data_path: ../data/METR_LA/METR-LA.h5
+        adjacency_path: ../data/METR_LA/adj_METR-LA.pkl
+        context_length: 12
+        horizon: 12
+        start_index: 0
+        end_index: 23990
+        temporal_stride: 1
+        norm_mean: 54.4059
+        norm_std: 19.4943
+    loader:
+      batch_size: 4
+      shuffle: true
+      num_workers: 0
+      pin_memory: false
+
+  validation:
+    dataset:
+      target: data_processing.metr_la.METRLADataset
+      parameters:
+        data_path: ../data/METR_LA/METR-LA.h5
+        adjacency_path: ../data/METR_LA/adj_METR-LA.pkl
+        context_length: 12
+        horizon: 12
+        start_index: 23990
+        end_index: 27417
+        temporal_stride: 1
+        norm_mean: 54.4059
+        norm_std: 19.4943
+    loader:
+      batch_size: 4
+      shuffle: false
+      num_workers: 0
+      pin_memory: false
+
+  test:
+    dataset:
+      target: data_processing.metr_la.METRLADataset
+      parameters:
+        data_path: ../data/METR_LA/METR-LA.h5
+        adjacency_path: ../data/METR_LA/adj_METR-LA.pkl
+        context_length: 12
+        horizon: 12
+        start_index: 27417
+        end_index: 34272
+        temporal_stride: 1
+        norm_mean: 54.4059
+        norm_std: 19.4943
+    loader:
+      batch_size: 1
+      shuffle: false
+      num_workers: 0
+      pin_memory: false
+
+model:
+  target: models.model.DGCDiff
+  parameters:
+    x_dim: 1
+    h_dim: 128
+    u_dim: 64
+    diff_dim: 128
+    diff_steps: 100
+
+objective:
+  parameters:
+    kld_weight: 0.5
+    rec_weight: 1.0
+
+optimizer:
+  target: torch.optim.Adam
+  parameters:
+    lr: 0.0002
+    weight_decay: 0.0001
+
+scheduler:
+  target: torch.optim.lr_scheduler.ReduceLROnPlateau
+  parameters:
+    mode: min
+    patience: 10
+    factor: 0.5
+    min_lr: 0.00001
+
+training:
+  epochs: 100
+  gradient_clipping: 1.0
+
+checkpoint:
+  directory: runs/metr_la_dgcdiff
+  resume_from: null
+
+evaluation:
+  checkpoint: runs/metr_la_dgcdiff/best.pth
+  split: test
+  num_samples: 50
+  seed: 42
+  interval: 0.9
+  output_dir: runs/metr_la_dgcdiff/evaluation
