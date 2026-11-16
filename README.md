@@ -1,4 +1,4 @@
-# DGCDiff on METR-LA
+# Dynamic Graph-Conditioned Diffusion (DGCDiff)
 
 PyTorch code for training and evaluating DGCDiff on the public METR-LA traffic
 forecasting benchmark. 
